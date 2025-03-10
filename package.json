@@ -1,0 +1,25 @@
+{
+  "name": "omalley",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "sequelize": "^6.37.6",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0",
+    "wrangler": "^3.112.0"
+  }
+}
