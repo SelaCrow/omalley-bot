@@ -14,6 +14,10 @@ npm install
 echo "Rebuilding better-sqlite3 from source..."
 npm rebuild better-sqlite3 --build-from-source
 
+# List files in the current directory for debugging
+echo "Listing files in the current directory..."
+ls -la
+
 # Start the bot
 echo "Starting the bot..."
 node index.js
