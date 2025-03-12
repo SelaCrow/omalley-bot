@@ -1,6 +1,19 @@
-.env
-config.json
-node_modules
+# Node modules
+node_modules/
 
-# Ignore SQLite database file
-path/to/database.sqlite
+# Environment variables
+.env
+
+# Local database files
+database.sqlite
+
+# Logs
+logs/
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Configuration files
+config.json
