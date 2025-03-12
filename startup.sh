@@ -42,6 +42,10 @@ echo "Time taken to reinstall dependencies: $((time_after_install - time_after_r
 # Rebuild sequelize from source
 echo "Rebuilding sequelize from source..."
 npm rebuild sequelize --build-from-source
+if [ $? -ne 0 ]; then
+    echo "Failed to rebuild sequelize, exiting..."
+    exit 1
+fi
 echo "sequelize rebuilt from source."
 
 # Record the time after rebuilding sequelize
