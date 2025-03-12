@@ -75,7 +75,7 @@ module.exports = {
 				await User.create({ user_id: userId, balance: 1 });
 			}
 			messageCounts.set(userId, 0);
-			message.reply('You\'ve earned 1 gold for your activity!');
+			console.log(`${message.author.tag} has earned 1 gold!`);
 		}
 		else {
 			messageCounts.set(userId, count + 1);
