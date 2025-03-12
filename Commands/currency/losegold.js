@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
-const { db } = require('../../dbObjects.js');
+const { User } = require('../../dbObjects.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,7 +17,7 @@ module.exports = {
 		const amount = interaction.options.getInteger('amount');
 
 		// Check if the user exists in the database
-		const user = db.prepare('SELECT * FROM users WHERE user_id = ?').get(targetUser.id);
+		const user = await User.findOne({ where: { user_id: targetUser.id } });
 
 		if (!user) {
 			return interaction.reply({ content: 'User not found.', ephemeral: true });
@@ -26,7 +26,7 @@ module.exports = {
 			// If the user exists, update their balance
 			user.balance -= amount;
 			if (user.balance < 0) user.balance = 0;
-			db.prepare('UPDATE users SET balance = ? WHERE user_id = ?').run(user.balance, targetUser.id);
+			await user.save();
 		}
 
 		return interaction.reply(`${targetUser} now has ${user.balance} gold.`);

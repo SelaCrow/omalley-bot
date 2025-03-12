@@ -1,5 +1,5 @@
 const { Events, PermissionsBitField, Collection } = require('discord.js');
-const { Users } = require('../dbObjects.js');
+const { User } = require('../dbObjects.js');
 
 const messageCounts = new Collection();
 
@@ -66,15 +66,16 @@ module.exports = {
 		const count = messageCounts.get(userId) || 0;
 
 		if (count + 1 >= 10) {
-			const user = await Users.findOne({ where: { user_id: userId } });
+			const user = await User.findOne({ where: { user_id: userId } });
 			if (user) {
 				user.balance += 1;
 				await user.save();
 			}
 			else {
-				await Users.create({ user_id: userId, balance: 1 });
+				await User.create({ user_id: userId, balance: 1 });
 			}
 			messageCounts.set(userId, 0);
+			message.reply('You\'ve earned 1 gold for your activity!');
 		}
 		else {
 			messageCounts.set(userId, count + 1);

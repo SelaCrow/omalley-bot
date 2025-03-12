@@ -39,14 +39,14 @@ echo "Dependencies reinstalled."
 time_after_install=$(date +%s)
 echo "Time taken to reinstall dependencies: $((time_after_install - time_after_rm)) seconds."
 
-# Rebuild better-sqlite3 from source
-echo "Rebuilding better-sqlite3 from source..."
-npm rebuild better-sqlite3 --build-from-source
-echo "better-sqlite3 rebuilt from source."
+# Rebuild sequelize from source
+echo "Rebuilding sequelize from source..."
+npm rebuild sequelize --build-from-source
+echo "sequelize rebuilt from source."
 
-# Record the time after rebuilding better-sqlite3
+# Record the time after rebuilding sequelize
 time_after_rebuild=$(date +%s)
-echo "Time taken to rebuild better-sqlite3: $((time_after_rebuild - time_after_install)) seconds."
+echo "Time taken to rebuild sequelize: $((time_after_rebuild - time_after_install)) seconds."
 
 # List files in the current directory for debugging
 echo "Listing files in the current directory..."

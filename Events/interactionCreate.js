@@ -57,6 +57,8 @@ module.exports = {
 		}
 	},
 };
+
+// Log received commands
 client.on(Events.InteractionCreate, async interaction => {
 	console.log(`Received command: ${interaction.commandName}`);
 	if (!interaction.isChatInputCommand()) return;

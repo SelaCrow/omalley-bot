@@ -1,5 +1,13 @@
-const { sequelize } = require('./dbObjects.js');
+const { Sequelize } = require('sequelize');
 
-sequelize.sync({ force: true }).then(async () => {
-	console.log('Database synced.');
-}).catch(console.error);
+// Create a new instance of Sequelize
+const sequelize = new Sequelize('database', 'username', 'password', {
+	host: 'localhost',
+	dialect: 'sqlite',
+	storage: 'path/to/database.sqlite',
+	logging: false,
+});
+
+console.log('Database initialized.');
+
+module.exports = sequelize;

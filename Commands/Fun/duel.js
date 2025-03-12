@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, Collection } = require('discord.js');
-const { Users } = require('../../dbObjects.js');
+const { User } = require('../../dbObjects.js');
 
 const cooldowns = new Collection();
 
@@ -47,13 +47,13 @@ module.exports = {
 			const loser = winner.id === challenger.id ? opponent : challenger;
 
 			// Update the winner's balance
-			const winnerUser = await Users.findOne({ where: { user_id: winner.id } });
+			const winnerUser = await User.findOne({ where: { user_id: winner.id } });
 			if (winnerUser) {
 				winnerUser.balance += 5;
 				await winnerUser.save();
 			}
 			else {
-				await Users.create({ user_id: winner.id, balance: 5 });
+				await User.create({ user_id: winner.id, balance: 5 });
 			}
 
 			await interaction.followUp(`${winner} came out on top, leavin' ${loser} in the dust! They ride off with 5 gold nuggets in hand!`);

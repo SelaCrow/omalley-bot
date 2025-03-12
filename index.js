@@ -2,7 +2,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
-const { db } = require('./dbObjects.js');
+const sequelize = require('./dbInit');
+const { User } = require('./dbObjects.js');
 
 const client = new Client({
 	intents: [
@@ -24,6 +25,8 @@ for (const folder of commandFolders) {
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
+		client.commands.set(command.name, command);
+		console.log(`Loaded command: ${command.name}`);
 		if ('data' in command && 'execute' in command) {
 			client.commands.set(command.data.name, command);
 		}
@@ -36,8 +39,17 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, async c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
 
-	// Example of using the db object
-	const userCount = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
+	// Test the database connection
+	try {
+		await sequelize.authenticate();
+		console.log('Connection to the database has been established successfully.');
+	}
+	catch (error) {
+		console.error('Unable to connect to the database:', error);
+	}
+
+	// Example of using the User model
+	const userCount = await User.count();
 	console.log(`There are ${userCount} users in the database.`);
 });
 
