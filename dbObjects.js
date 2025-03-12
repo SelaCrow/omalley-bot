@@ -15,12 +15,12 @@ const User = sequelize.define('User', {
 });
 
 // Sync the model with the database
-sequelize.sync({ force: true })
+sequelize.sync({ alter: true })
 	.then(() => {
-		console.log('Database & tables created!');
+		console.log('Database & tables synchronized!');
 	})
 	.catch(error => {
-		console.error('Error creating database & tables:', error);
+		console.error('Error synchronizing database', error);
 	});
 
-module.exports = { User };
+module.exports = { sequelize, User };

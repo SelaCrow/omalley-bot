@@ -2,8 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
-const sequelize = require('./dbInit');
-const { User } = require('./dbObjects.js');
+const { sequelize, User } = require('./dbObjects.js');
 
 const client = new Client({
 	intents: [
@@ -41,7 +40,8 @@ client.once(Events.ClientReady, async () => {
 	// Test the database connection
 	try {
 		await sequelize.authenticate();
-		console.log('Connection to the database has been established successfully.');
+		await sequelize.sync();
+		console.log('Connection to the database has been established & tables synced!');
 	}
 	catch (error) {
 		console.error('Unable to connect to the database:', error);
