@@ -65,7 +65,7 @@ module.exports = {
 		const userId = message.author.id;
 		const count = messageCounts.get(userId) || 0;
 
-		if (count + 1 >= 10) {
+		if (count + 1 >= 100) {
 			const user = await User.findOne({ where: { user_id: userId } });
 			if (user) {
 				user.balance += 1;
