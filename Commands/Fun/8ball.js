@@ -9,7 +9,6 @@ module.exports = {
 			option.setName('question')
 				.setDescription('The question you want to ask')
 				.setRequired(true)),
-
 	async execute(interaction) {
 		// Array of responses
 		const eightball = [

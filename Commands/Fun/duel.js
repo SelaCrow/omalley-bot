@@ -46,17 +46,23 @@ module.exports = {
 			const winner = response.author;
 			const loser = winner.id === challenger.id ? opponent : challenger;
 
-			// Update the winner's balance
-			const winnerUser = await User.findOne({ where: { user_id: winner.id } });
-			if (winnerUser) {
-				winnerUser.balance += 5;
-				await winnerUser.save();
-			}
-			else {
-				await User.create({ user_id: winner.id, balance: 5 });
-			}
+			try {
+				// Update the winner's balance
+				const winnerUser = await User.findOne({ where: { user_id: winner.id } });
+				if (winnerUser) {
+					winnerUser.balance += 5;
+					await winnerUser.save();
+				}
+				else {
+					await User.create({ user_id: winner.id, balance: 5 });
+				}
 
-			await interaction.followUp(`${winner} came out on top, leavin' ${loser} in the dust! They ride off with 5 gold nuggets in hand!`);
+				await interaction.followUp(`${winner} came out on top, leavin' ${loser} in the dust! They ride off with 5 gold nuggets in hand!`);
+			}
+			catch (error) {
+				console.error('Error updating winner\'s balance:', error);
+				await interaction.followUp('There was an error updating the winner\'s balance. Please try again later.');
+			}
 		});
 
 		collector.on('end', collected => {

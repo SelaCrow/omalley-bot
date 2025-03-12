@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { User } = require('../../dbObjects.js');
 
 module.exports = {
@@ -8,11 +8,6 @@ module.exports = {
 		.addUserOption(option => option.setName('user').setDescription('The user to add gold to').setRequired(true))
 		.addIntegerOption(option => option.setName('amount').setDescription('The amount of gold to add').setRequired(true)),
 	async execute(interaction) {
-		// Check if the user has the MANAGE_GUILD permission
-		if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
-			return interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
-		}
-
 		const targetUser = interaction.options.getUser('user');
 		const amount = interaction.options.getInteger('amount');
 

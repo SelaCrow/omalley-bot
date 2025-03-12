@@ -16,19 +16,25 @@ module.exports = {
 		const targetUser = interaction.options.getUser('user');
 		const amount = interaction.options.getInteger('amount');
 
-		// Check if the user exists in the database
-		const user = await User.findOne({ where: { user_id: targetUser.id } });
+		try {
+			// Check if the user exists in the database
+			const user = await User.findOne({ where: { user_id: targetUser.id } });
 
-		if (!user) {
-			return interaction.reply({ content: 'User not found.', ephemeral: true });
-		}
-		else {
-			// If the user exists, update their balance
-			user.balance -= amount;
-			if (user.balance < 0) user.balance = 0;
-			await user.save();
-		}
+			if (!user) {
+				return interaction.reply({ content: 'User not found.', ephemeral: true });
+			}
+			else {
+				// If the user exists, update their balance
+				user.balance -= amount;
+				if (user.balance < 0) user.balance = 0;
+				await user.save();
+			}
 
-		return interaction.reply(`${targetUser} now has ${user.balance} gold.`);
+			return interaction.reply(`${targetUser} now has ${user.balance} gold.`);
+		}
+		catch (error) {
+			console.error('Error updating user balance:', error);
+			return interaction.reply({ content: 'There was an error updating the balance. Please try again later.', ephemeral: true });
+		}
 	},
 };
