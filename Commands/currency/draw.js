@@ -70,5 +70,5 @@ async function drawLottery(interaction) {
 	await LotteryTickets.destroy({ where: {} });
 	await LotteryState.update({ prize_pool: 0 }, { where: {} });
 
-	return interaction.reply(`🎉 The winner is <@${winnerId}>! They won **${prize}** gold!`);
+	return interaction.reply(`🎉 Well, slap my spurs and call me lucky! The winner is <@${winnerId}>! They just roped in ${prize} gold!`);
 }

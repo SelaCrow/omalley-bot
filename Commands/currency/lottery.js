@@ -38,7 +38,7 @@ module.exports = {
 			const user = await User.findOne({ where: { user_id: userId } });
 
 			if (!user || user.balance < totalCost) {
-				return interaction.reply({ content: '❌ You don\'t have enough gold to buy these tickets!', ephemeral: true });
+				return interaction.reply({ content: '❌ Slow down, cowboy! Your purse ain\'t heavy enough for that many tickets!', ephemeral: true });
 			}
 
 			// Deduct gold
@@ -60,14 +60,14 @@ module.exports = {
 			lotteryState.prize_pool += totalCost;
 			await lotteryState.save();
 
-			return interaction.reply(`🎟️ You bought **${ticketCount}** tickets! The prize pool is now **${lotteryState.prize_pool}** gold.`);
+			return interaction.reply(`🎟️ You just bought yourself ${ticketCount} tickets! That puts you at ${lotteryPool[userId]} total. The prize pool's sittin' at ${prizePool} gold now!`);
 		}
 
 		// 🔎 `/lottery check` - Check User's Tickets
 		if (subcommand === 'check') {
 			const userTickets = await LotteryTickets.findOne({ where: { user_id: userId } });
 			const ticketCount = userTickets ? userTickets.tickets : 0;
-			return interaction.reply(`🎟️ You have **${ticketCount}** tickets.`);
+			return interaction.reply(`🎟️ You have **${ticketCount}** tickets in your saddlebag.`);
 		}
 
 		// 💰 `/lottery pool` - Check Total Prize Pool
