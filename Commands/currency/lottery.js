@@ -39,7 +39,7 @@ module.exports = {
 			const ticketCount = interaction.options.getInteger('tickets');
 
 			if (ticketCount <= 0) {
-				return interaction.reply({ content: '❌ You must buy at least 1 ticket.', ephemeral: true });
+				return interaction.reply({ content: '❌ Slow down, cowboy! Your purse ain\'t heavy enough for that many tickets!', ephemeral: true });
 			}
 
 			const totalCost = ticketCount * ticketPrice;
@@ -48,7 +48,7 @@ module.exports = {
 			const user = await User.findOne({ where: { user_id: userId } });
 
 			if (!user || user.balance < totalCost) {
-				return interaction.reply({ content: '❌ You don\'t have enough gold to buy that many tickets!', ephemeral: true });
+				return interaction.reply({ content: '❌ Whoa there, partner—you ain\'t got enough gold to be buyin\' that many tickets!', ephemeral: true });
 			}
 
 			// Deduct gold & add tickets
@@ -58,18 +58,18 @@ module.exports = {
 			lotteryPool[userId] = (lotteryPool[userId] || 0) + ticketCount;
 			prizePool += totalCost;
 
-			return interaction.reply(`🎟️ You bought **${ticketCount}** tickets! You now have **${lotteryPool[userId]}** total. The prize pool is now **${prizePool}** gold!`);
+			return interaction.reply(`🎟️ You just bought yourself ${ticketCount} tickets! That puts you at ${lotteryPool[userId]} total. The prize pool's sittin' at ${prizePool} gold now!`);
 		}
 
 		// 🔎 `/lottery check` - Check User's Tickets
 		if (subcommand === 'check') {
 			const userTickets = lotteryPool[userId] || 0;
-			return interaction.reply(`🎟️ You have **${userTickets}** lottery tickets.`);
+			return interaction.reply(`🎟️ You've got ${userTickets} lottery tickets in your saddlebag, bucko.`);
 		}
 
 		// 💰 `/lottery pool` - Check Total Prize Pool (Gold)
 		if (subcommand === 'pool') {
-			return interaction.reply(`🏆 The total prize pool is **${prizePool}** gold!`);
+			return interaction.reply(`🏆 The total prize pool's up to ${prizePool} gold! That's a mighty fine jackpot!`);
 		}
 	},
 };
