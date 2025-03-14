@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('./dbInit');
 
-// Define the User model
 const User = sequelize.define('User', {
 	user_id: {
 		type: DataTypes.STRING,
@@ -14,13 +13,28 @@ const User = sequelize.define('User', {
 	},
 });
 
-// Sync the model with the database
-sequelize.sync({ alter: true })
-	.then(() => {
-		console.log('Database & tables synchronized!');
-	})
-	.catch(error => {
-		console.error('Error synchronizing database', error);
-	});
+const LotteryTickets = sequelize.define('LotteryTickets', {
+	user_id: {
+		type: DataTypes.STRING,
+		primaryKey: true,
+	},
+	tickets: {
+		type: DataTypes.INTEGER,
+		defaultValue: 0,
+		allowNull: false,
+	},
+});
 
-module.exports = { sequelize, User };
+const LotteryState = sequelize.define('LotteryState', {
+	prize_pool: {
+		type: DataTypes.INTEGER,
+		defaultValue: 0,
+		allowNull: false,
+	},
+});
+
+sequelize.sync({ alter: true })
+	.then(() => console.log('Database & tables synchronized!'))
+	.catch(error => console.error('Error synchronizing database', error));
+
+module.exports = { sequelize, User, LotteryTickets, LotteryState };

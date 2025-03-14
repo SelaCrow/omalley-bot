@@ -1,17 +1,14 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { User } = require('../../dbObjects.js');
+const { User, LotteryTickets, LotteryState } = require('../../dbObjects.js');
 
-const lotteryPool = {};
 const ticketPrice = 10;
-let prizePool = 0;
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('lottery')
 		.setDescription('Participate in the server lottery!')
 		.addSubcommand(subcommand =>
-			subcommand
-				.setName('buy')
+			subcommand.setName('buy')
 				.setDescription('Buy lottery tickets')
 				.addIntegerOption(option =>
 					option.setName('tickets')
@@ -20,13 +17,11 @@ module.exports = {
 				),
 		)
 		.addSubcommand(subcommand =>
-			subcommand
-				.setName('check')
-				.setDescription('Check how many lottery tickets you have'),
+			subcommand.setName('check')
+				.setDescription('Check your lottery tickets'),
 		)
 		.addSubcommand(subcommand =>
-			subcommand
-				.setName('pool')
+			subcommand.setName('pool')
 				.setDescription('Check the total gold in the prize pool'),
 		),
 
@@ -37,39 +32,49 @@ module.exports = {
 		// 🛒 `/lottery buy` - Purchase Tickets
 		if (subcommand === 'buy') {
 			const ticketCount = interaction.options.getInteger('tickets');
-
-			if (ticketCount <= 0) {
-				return interaction.reply({ content: '❌ Slow down, cowboy! Your purse ain\'t heavy enough for that many tickets!', ephemeral: true });
-			}
+			if (ticketCount <= 0) return interaction.reply({ content: '❌ You need to buy at least **1** ticket!', ephemeral: true });
 
 			const totalCost = ticketCount * ticketPrice;
-
-			// Retrieve user from the database
 			const user = await User.findOne({ where: { user_id: userId } });
 
 			if (!user || user.balance < totalCost) {
-				return interaction.reply({ content: '❌ Whoa there, partner—you ain\'t got enough gold to be buyin\' that many tickets!', ephemeral: true });
+				return interaction.reply({ content: '❌ You don\'t have enough gold to buy these tickets!', ephemeral: true });
 			}
 
-			// Deduct gold & add tickets
+			// Deduct gold
 			user.balance -= totalCost;
 			await user.save();
 
-			lotteryPool[userId] = (lotteryPool[userId] || 0) + ticketCount;
-			prizePool += totalCost;
+			// Update tickets in DB
+			const userTickets = await LotteryTickets.findOne({ where: { user_id: userId } });
+			if (userTickets) {
+				userTickets.tickets += ticketCount;
+				await userTickets.save();
+			}
+			else {
+				await LotteryTickets.create({ user_id: userId, tickets: ticketCount });
+			}
 
-			return interaction.reply(`🎟️ You just bought yourself ${ticketCount} tickets! That puts you at ${lotteryPool[userId]} total. The prize pool's sittin' at ${prizePool} gold now!`);
+			// Update prize pool
+			const lotteryState = await LotteryState.findOne() || await LotteryState.create({ prize_pool: 0 });
+			lotteryState.prize_pool += totalCost;
+			await lotteryState.save();
+
+			return interaction.reply(`🎟️ You bought **${ticketCount}** tickets! The prize pool is now **${lotteryState.prize_pool}** gold.`);
 		}
 
 		// 🔎 `/lottery check` - Check User's Tickets
 		if (subcommand === 'check') {
-			const userTickets = lotteryPool[userId] || 0;
-			return interaction.reply(`🎟️ You've got ${userTickets} lottery tickets in your saddlebag, bucko.`);
+			const userTickets = await LotteryTickets.findOne({ where: { user_id: userId } });
+			const ticketCount = userTickets ? userTickets.tickets : 0;
+			return interaction.reply(`🎟️ You have **${ticketCount}** tickets.`);
 		}
 
-		// 💰 `/lottery pool` - Check Total Prize Pool (Gold)
+		// 💰 `/lottery pool` - Check Total Prize Pool
 		if (subcommand === 'pool') {
-			return interaction.reply(`🏆 The total prize pool's up to ${prizePool} gold! That's a mighty fine jackpot!`);
+			const lotteryState = await LotteryState.findOne();
+			const prizePool = lotteryState ? lotteryState.prize_pool : 0;
+			return interaction.reply(`🏆 The prize pool is **${prizePool}** gold!`);
 		}
 	},
 };
