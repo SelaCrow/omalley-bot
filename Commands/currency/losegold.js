@@ -1,10 +1,11 @@
-const { SlashCommandBuilder, PermissionsBitField } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField, PermissionFlagsBits } = require('discord.js');
 const { User } = require('../../dbObjects.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('losegold')
-		.setDescription('Remove gold from a user')
+		.setDescription('Remove gold from a user (Mods Only)')
+		.setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
 		.addUserOption(option => option.setName('user').setDescription('The user to remove gold from').setRequired(true))
 		.addIntegerOption(option => option.setName('amount').setDescription('The amount of gold to remove').setRequired(true)),
 	async execute(interaction) {

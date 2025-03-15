@@ -1,10 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { User } = require('../../dbObjects.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('addgold')
-		.setDescription('Add gold to a user')
+		.setDescription('Add gold to a user (Mods Only)')
+		.setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
 		.addUserOption(option => option.setName('user').setDescription('The user to add gold to').setRequired(true))
 		.addIntegerOption(option => option.setName('amount').setDescription('The amount of gold to add').setRequired(true)),
 	async execute(interaction) {
