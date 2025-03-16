@@ -26,6 +26,11 @@ const LotteryTickets = sequelize.define('LotteryTickets', {
 });
 
 const LotteryState = sequelize.define('LotteryState', {
+	id: {
+		type: DataTypes.INTEGER,
+		primaryKey: true,
+		autoIncrement: true,
+	},
 	prize_pool: {
 		type: DataTypes.INTEGER,
 		defaultValue: 0,
@@ -33,7 +38,7 @@ const LotteryState = sequelize.define('LotteryState', {
 	},
 });
 
-sequelize.sync({ alter: true })
+sequelize.sync()
 	.then(() => console.log('Database & tables synchronized!'))
 	.catch(error => console.error('Error synchronizing database', error));
 

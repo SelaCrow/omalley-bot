@@ -15,15 +15,17 @@ module.exports = {
 		const challenger = interaction.user;
 		const opponent = interaction.options.getUser('opponent');
 
+		// ❌ Self-duel check
 		if (challenger.id === opponent.id) {
 			return interaction.reply({ content: 'A showdown takes two, not one! Go find someone else to challenge.', ephemeral: false });
 		}
 
+		// ❌ Don't let them challenge the bot
 		if (opponent.id === interaction.client.user.id) {
 			return interaction.reply({ content: 'Me? In a duel? Reckon I\'d win too fast. Pick someone else, partner.', ephemeral: false });
 		}
 
-		// Check cooldown
+		// ⏳ Cooldown check
 		const now = Date.now();
 		const cooldownAmount = 10 * 1000;
 		if (cooldowns.has(challenger.id)) {
@@ -36,38 +38,59 @@ module.exports = {
 		cooldowns.set(challenger.id, now);
 		setTimeout(() => cooldowns.delete(challenger.id), cooldownAmount);
 
-		await interaction.reply(`Hope you're quick on the draw, ${opponent}, 'cause ${challenger} just called you out! Type 'DRAW!' before they fill you full of lead!`);
+		// ⚔️ Challenge Message & Accept System
+		await interaction.reply(`${opponent}, you've been called out by ${challenger} for a duel! Type \`accept\` to take up the challenge, or be known as a yella-bellied coward!`);
 
-		const filter = response => response.content.toLowerCase() === 'draw' && (response.author.id === challenger.id || response.author.id === opponent.id);
-		const collector = interaction.channel.createMessageCollector({ filter, time: 15000 });
+		const acceptFilter = response => response.content.toLowerCase() === 'accept' && response.author.id === opponent.id;
+		const acceptCollector = interaction.channel.createMessageCollector({ filter: acceptFilter, time: 15000 });
 
-		collector.on('collect', async response => {
-			collector.stop();
-			const winner = response.author;
-			const loser = winner.id === challenger.id ? opponent : challenger;
+		acceptCollector.on('collect', async () => {
+			acceptCollector.stop();
+			await interaction.followUp('Alright, partners. Get ready... I\'ll call the draw soon! 🤠');
 
-			try {
-				// Update the winner's balance
-				const winnerUser = await User.findOne({ where: { user_id: winner.id } });
-				if (winnerUser) {
-					winnerUser.balance += 5;
-					await winnerUser.save();
-				}
-				else {
-					await User.create({ user_id: winner.id, balance: 5 });
-				}
+			// 🎯 Randomized Draw Timer (between 3 to 10 seconds)
+			const drawTime = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
+			setTimeout(async () => {
+				await interaction.followUp('DRAW! Type `draw` as fast as you can!');
 
-				await interaction.followUp(`${winner} came out on top, leavin' ${loser} in the dust! They ride off with 5 gold nuggets in hand!`);
-			}
-			catch (error) {
-				console.error('Error updating winner\'s balance:', error);
-				await interaction.followUp('There was an error updating the winner\'s balance. Please try again later.');
-			}
+				const drawFilter = response => response.content.toLowerCase() === 'draw' && (response.author.id === challenger.id || response.author.id === opponent.id);
+				const drawCollector = interaction.channel.createMessageCollector({ filter: drawFilter, time: 5000 });
+
+				drawCollector.on('collect', async collectedResponse => {
+					drawCollector.stop();
+					const winner = collectedResponse.author;
+					const loser = winner.id === challenger.id ? opponent : challenger;
+
+					try {
+						// Update the winner's balance
+						const winnerUser = await User.findOne({ where: { user_id: winner.id } });
+						if (winnerUser) {
+							winnerUser.balance += 5;
+							await winnerUser.save();
+						}
+						else {
+							await User.create({ user_id: winner.id, balance: 5 });
+						}
+
+						await interaction.followUp(`💥 ${winner} was faster on the trigger! ${loser} bites the dust! ${winner} wins 5 gold! 🏆`);
+					}
+					catch (error) {
+						console.error('Error updating winner\'s balance:', error);
+						await interaction.followUp('There was an error updating the winner\'s balance. Please try again later.');
+					}
+				});
+
+				drawCollector.on('end', collected => {
+					if (collected.size === 0) {
+						interaction.followUp('Neither of y\'all drew! Guess it was a false alarm.');
+					}
+				});
+			}, drawTime);
 		});
 
-		collector.on('end', collected => {
+		acceptCollector.on('end', collected => {
 			if (collected.size === 0) {
-				interaction.followUp('Well, that was a whole lotta nothin\'. No winner, no gold, no glory. Reckon you two got cold feet.');
+				interaction.followUp(`${opponent} didn't accept the duel. Guess they ain't got the guts! 🤠`);
 			}
 		});
 	},
