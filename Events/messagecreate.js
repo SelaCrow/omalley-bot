@@ -1,5 +1,6 @@
 const { Events, PermissionsBitField, Collection } = require('discord.js');
 const { User } = require('../dbObjects.js');
+const { isDrunk, soberUp } = require('../commands/Fun/buy_booze.js');
 
 const messageCounts = new Collection();
 
@@ -8,13 +9,26 @@ module.exports = {
 	async execute(message) {
 		console.log(`Received message: "${message.content}" from ${message.author.tag}`);
 
-		// Ignore messages from bots
+		// Ignore bot messages
 		if (message.author.bot) return;
 
-		// Convert message content to lowercase
+		const userId = message.author.id;
 		const content = message.content.toLowerCase();
 
-		// Combined Greeting Responses
+		// 🥴 Handle Drunken Speech
+		if (isDrunk(userId)) {
+			const jumbledText = jumbleText(message.content);
+
+			await message.delete().catch(console.error);
+			return message.channel.send(`🤠 **${message.author.username}** tried sayin' somethin', but all I got was:\n*"${jumbledText}"*`);
+		}
+
+		// 🕰️ Sober up if time has passed
+		if (!isDrunk(userId)) {
+			soberUp(userId);
+		}
+
+		// 👋 Greeting Responses
 		const greetings = ['hi omalley', 'hello omalley', 'hey omalley', 'gm omalley', 'good morning omalley', 'morning omalley'];
 		if (greetings.includes(content)) {
 			if (content.startsWith('gm') || content.startsWith('good morning') || content.startsWith('morning')) {
@@ -25,34 +39,27 @@ module.exports = {
 			}
 		}
 
-		// Jail Command
+		// 🚨 Jail Command
 		if (content.startsWith('omalley jail')) {
-			// Check if the sender has the 'MODERATE_MEMBERS' permission
 			if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
 				return message.reply('Hold your horses, you\'re not cleared to use that.');
 			}
 
-			// Get the mentioned user
 			const targetUser = message.mentions.members.first();
 			if (!targetUser) {
 				return message.reply('You gotta point a finger \'fore you slap the cuffs on.');
 			}
 
-			// Check if the bot has the timeout permission
 			if (!message.guild.members.me.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
 				return message.reply('Not my call to send folks to the quiet corner.');
 			}
 
-			// Ensure the bot's role is higher than the user's role
 			if (targetUser.roles.highest.position >= message.guild.members.me.roles.highest.position) {
 				return message.reply('Can\'t put \'em in timeout—they\'re ridin\' at the same rank or higher than me.');
 			}
 
 			try {
-				// Timeout the user for 60 seconds
 				await targetUser.timeout(60 * 1000, 'Jailed by O\'Malley');
-
-				// Reply confirming the timeout
 				await message.reply(`${targetUser} has been roped up for one minute, sit tight.`);
 			}
 			catch (error) {
@@ -61,10 +68,8 @@ module.exports = {
 			}
 		}
 
-		// Message Counting and Gold Awarding
-		const userId = message.author.id;
+		// 💰 Message Counting & Gold Rewards
 		const count = messageCounts.get(userId) || 0;
-
 		if (count + 1 >= 100) {
 			const user = await User.findOne({ where: { user_id: userId } });
 			if (user) {
@@ -82,3 +87,14 @@ module.exports = {
 		}
 	},
 };
+
+// 🔀 Function to jumble text for drunken messages
+function jumbleText(text) {
+	return text.split(' ').map(word => {
+		if (word.length > 3) {
+			const middle = word.slice(1, -1).split('').sort(() => Math.random() - 0.5).join('');
+			return word[0] + middle + word[word.length - 1];
+		}
+		return word;
+	}).join(' ');
+}
