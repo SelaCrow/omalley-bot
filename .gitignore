@@ -15,5 +15,7 @@ logs/
 .DS_Store
 Thumbs.db
 
+database.sqlite
 # Configuration files
 config.json
+

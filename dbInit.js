@@ -1,13 +1,13 @@
 const { Sequelize } = require('sequelize');
 
-// Create a new instance of Sequelize
-const sequelize = new Sequelize('database', 'username', 'password', {
-	host: 'localhost',
+const dbPath = process.env.DB_PATH || './database.sqlite';
+
+const sequelize = new Sequelize({
 	dialect: 'sqlite',
-	storage: './database.sqlite',
+	storage: dbPath,
 	logging: false,
 });
 
-console.log('Database initialized.');
+console.log(`Database initialized at: ${dbPath}`);
 
 module.exports = sequelize;

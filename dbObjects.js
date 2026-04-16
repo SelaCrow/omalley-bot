@@ -37,9 +37,20 @@ const LotteryState = sequelize.define('LotteryState', {
 		allowNull: false,
 	},
 });
+const SwearOffense = sequelize.define('SwearOffense', {
+	user_id: {
+		type: DataTypes.STRING,
+		primaryKey: true,
+	},
+	count: {
+		type: DataTypes.INTEGER,
+		defaultValue: 0,
+		allowNull: false,
+	},
+});
 
 sequelize.sync()
 	.then(() => console.log('Database & tables synchronized!'))
 	.catch(error => console.error('Error synchronizing database', error));
 
-module.exports = { sequelize, User, LotteryTickets, LotteryState };
+module.exports = { sequelize, User, LotteryTickets, LotteryState, SwearOffense };
